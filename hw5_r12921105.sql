@@ -106,30 +106,30 @@ DROP TABLE IF EXISTS record_table;
 CREATE TABLE record_table (
 	action_id INT PRIMARY KEY AUTO_INCREMENT,
     action_type ENUM('INSERT', 'DELETE') NOT NULL,
-    action_by VARCHAR(255) NOT NULL 
+    action_by VARCHAR(255) NOT NULL,
+    action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 SET @NUMDEL = 0;
 SET @NUMINS = 0;
-SET @ACTID = 1;
 
+DROP TRIGGER IF EXISTS InsertStu;
 DELIMITER //
-CREATE TRIGGER insert_stu BEFORE INSERT ON student
+CREATE TRIGGER InsertStu AFTER INSERT ON student
 FOR EACH ROW
 BEGIN
-    INSERT INTO record_table(action_id, action_type, action_by) VALUES (action_id, 'INSERT', USER()); 
+    INSERT INTO record_table(action_type, action_by) VALUES ('INSERT', USER()); 
     SET @NUMINS = @NUMINS + 1;
-    SET @ACTID = @ACTID + 1;
 END //
 DELIMITER ;
 
+DROP TRIGGER IF EXISTS DeleteStu;
 DELIMITER //
-CREATE TRIGGER delete_stu BEFORE DELETE ON student
+CREATE TRIGGER DeleteStu AFTER DELETE ON student
 FOR EACH ROW
 BEGIN
-    INSERT INTO record_table(action_type, action_by) VALUES (action_id, 'DELETE', USER());
+    INSERT INTO record_table(action_type, action_by) VALUES ('DELETE', USER());
     SET @NUMDEL = @NUMDEL + 1;
-    SET @ACTID = @ACTID + 1;
 END //
 DELIMITER ;
 
